@@ -1,0 +1,14 @@
+name: Verify Feature Branch
+
+on:
+  push:
+    branches:
+      - 'feature/*'    # Se activa en ramas como feature/login, feature/api
+      - 'fix/*'        # Se activa en ramas de corrección
+    # IMPORTANTE: Al definir ramas específicas arriba, 
+    # automáticamente NO se ejecuta en main ni en tags.
+
+jobs:
+  call-validation:
+    # Llamamos al nuevo workflow del central
+    uses: ciclo-de-vida-II/AUY1104-SharedWorkflows/.github/workflows/validate-code.yaml@main
