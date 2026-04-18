@@ -106,3 +106,5 @@ Docker de Ejemplo/
 | Variable | Valor por defecto | Uso |
 |----------|-------------------|-----|
 | `PORT` | `3000` | Puerto donde escucha la app dentro del contenedor o en local |
+
+**// Test para el objetivo 4.2
