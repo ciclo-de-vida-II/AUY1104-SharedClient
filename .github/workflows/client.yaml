@@ -25,6 +25,6 @@ jobs:
 
     # Mismos secretos que declara workflow_call en deploy-api.yaml (DOCKER_* + SSH al nodo K3s)
     secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
       EA2_SSH_PRIVATE_KEY: ${{ secrets.EA2_SSH_PRIVATE_KEY }}
