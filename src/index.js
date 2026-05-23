@@ -9,7 +9,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     servicio: 'auy1104-api-ejemplo',
-    mensaje: 'El servicio está en ejecución',
+    mensaje: 'El servicio está en ejecución V1.0.2',
   });
 });
 
