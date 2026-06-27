@@ -1,10 +1,3 @@
-# Misma convención que client.yaml → image-name: demo-api
-# Sustituir YOUR_DOCKERHUB_USERNAME por tu usuario (igual que secret DOCKER_USERNAME).
-# La receta deploy-api publica: <usuario>/demo-api:<tag> y :latest
-#
-# Borde HTTP: no duplicar HAProxy aquí. Aplicar primero en el cluster
-# AUY1104-SharedWorkflows k8s-manifests/haproxy-academic/shared/
-# (ea2-haproxy-academic). Ruta pública :30088 …/backend/* → este Service demo-api:3000.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,9 +27,15 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
+          # ── LIVENESS ROTA A PROPÓSITO ─────────────────────────
+          # Apunta a una ruta inexistente → el pod arranca bien
+          # (readinessProbe pasa) pero K8s lo mata y reinicia
+          # repetidamente → CrashLoopBackOff → rollout status
+          # agota el timeout → rollback automático se activa.
           livenessProbe:
             httpGet:
-              path: /health
+              path: /ruta-que-no-existe
               port: http
             initialDelaySeconds: 15
-            periodSeconds: 20
+            periodSeconds: 10
+            failureThreshold: 2
