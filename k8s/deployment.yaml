@@ -23,7 +23,7 @@ spec:
               containerPort: 3000
           env:
             - name: DEPLOY_VERSION
-              value: "bad-v1"
+              value: "bad-v2"
           readinessProbe:
             httpGet:
               path: /health
@@ -34,6 +34,6 @@ spec:
             httpGet:
               path: /ruta-que-no-existe
               port: http
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            failureThreshold: 2
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 1
