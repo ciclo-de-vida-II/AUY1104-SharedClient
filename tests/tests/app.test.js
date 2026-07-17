@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { createApp } = require('../src/index');
+const { createApp } = require('../../src/index');
 
 describe('API HTTP (GET y POST)', () => {
   let app;
