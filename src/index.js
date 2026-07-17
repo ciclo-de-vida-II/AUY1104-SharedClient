@@ -11,7 +11,11 @@ function createApp() {
   const app = express();
   app.use(express.json());
 
-  app.get('/health', (req, res) => {
+  app.get('/health', async (req, res) => {
+    const modoFallo = (process.env.APP_VERSION || '').includes('-fail');
+    if (modoFallo) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
     res.json(healthPayload());
   });
 
@@ -47,9 +51,6 @@ function createApp() {
   return app;
 }
 
-// Solo levanta el servidor HTTP si el archivo se ejecuta directamente
-// (node src/index.js). Al importarlo desde los tests (createApp()),
-// no escucha en ningún puerto — así Supertest puede probarlo en memoria.
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   createApp().listen(PORT, () => {

@@ -1,10 +1,3 @@
-# ─────────────────────────────────────────────────────────────
-# Deployment CANARY (track: canary).
-# El pipeline lo renderiza en cada ejecución (sed) e inyecta:
-#   __APP_NAME__, __IMAGE__, __CANARY_TAG__, __CANARY_REPLICAS__
-# Vive solo durante la validación: si se promueve o se hace
-# rollback, termina en 0 réplicas.
-# ─────────────────────────────────────────────────────────────
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,12 +30,14 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /health
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
+            timeoutSeconds: 3
             failureThreshold: 3
           resources:
             requests:
