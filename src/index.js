@@ -1,41 +1,60 @@
 const express = require('express');
+const {
+  construirSaludo,
+  construirEchoRespuesta,
+  healthPayload,
+  respuestaSumaGet,
+  respuestaSumaPost,
+} = require('./lib/ejemplo');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+function createApp() {
+  const app = express();
+  app.use(express.json());
 
-app.use(express.json());
-
-app.get('/health', (req, res) => {
-  res.json({
-    ok: true,
-    servicio: 'auy1104-api-ejemplo',
-    mensaje: 'El servicio está en ejecución V1.0.3',
+  app.get('/health', (req, res) => {
+    res.json(healthPayload());
   });
-});
 
-app.get('/api/saludo', (req, res) => {
-  const nombre = req.query.nombre || 'estudiante';
-  res.json({
-    metodo: 'GET',
-    ruta: '/api/saludo',
-    mensaje: `Hola, ${nombre}. Esta es una respuesta JSON de ejemplo.`,
+  app.get('/api/saludo', (req, res) => {
+    res.json(construirSaludo(req.query.nombre));
   });
-});
 
-app.post('/api/echo', (req, res) => {
-  const cuerpo = req.body && typeof req.body === 'object' ? req.body : {};
-  res.status(201).json({
-    metodo: 'POST',
-    ruta: '/api/echo',
-    recibido: cuerpo,
-    nota: 'El servidor devuelve lo que enviaste en el cuerpo (útil para practicar POST + JSON).',
+  app.post('/api/echo', (req, res) => {
+    res.status(201).json(construirEchoRespuesta(req.body));
   });
-});
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Ruta no encontrada' });
-});
+  app.get('/api/suma', (req, res) => {
+    try {
+      res.json(respuestaSumaGet(req.query.a, req.query.b));
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
 
-app.listen(PORT, () => {
-  console.log(`API escuchando en http://0.0.0.0:${PORT}`);
-});
+  app.post('/api/suma', (req, res) => {
+    const cuerpo = req.body || {};
+    try {
+      res.status(201).json(respuestaSumaPost(cuerpo.a, cuerpo.b));
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  app.use((req, res) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
+  });
+
+  return app;
+}
+
+// Solo levanta el servidor HTTP si el archivo se ejecuta directamente
+// (node src/index.js). Al importarlo desde los tests (createApp()),
+// no escucha en ningún puerto — así Supertest puede probarlo en memoria.
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  createApp().listen(PORT, () => {
+    console.log(`API escuchando en http://0.0.0.0:${PORT}`);
+  });
+}
+
+module.exports = { createApp };

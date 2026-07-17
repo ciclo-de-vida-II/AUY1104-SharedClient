@@ -3,6 +3,8 @@
  * Separar lógica de rutas facilita probar con Jest sin levantar HTTP.
  */
 
+const VERSION = process.env.APP_VERSION || 'dev';
+
 function normalizarNombre(nombre) {
   const n = typeof nombre === 'string' && nombre.trim() ? nombre.trim() : 'estudiante';
   return n;
@@ -32,7 +34,11 @@ function healthPayload() {
   return {
     ok: true,
     servicio: 'auy1104-api-ejemplo',
-    mensaje: 'El servicio está en ejecución',
+    // Expone la versión del build (APP_VERSION, seteada en el Dockerfile).
+    // Útil para demostrar en vivo qué pods responden con la versión canary
+    // y cuáles con la estable durante la defensa.
+    version: VERSION,
+    mensaje: `El servicio está en ejecución (${VERSION})`,
   };
 }
 

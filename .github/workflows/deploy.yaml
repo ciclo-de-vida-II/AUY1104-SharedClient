@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────
+# Reemplaza a client.yaml y release.yaml (estaban duplicados y
+# desalineados: distintos nombres de secrets, inputs faltantes).
+#
+# Se dispara SOLO con tags de versión semántica (v1.2.3) o manual.
+# Consume la receta central FIJADA a un release (@v1.0.0), no a
+# @main, para que un cambio en SharedWorkflows no rompa este
+# pipeline sin aviso. Al subir una versión nueva del workflow
+# reutilizable, se actualiza este número a propósito.
+# ─────────────────────────────────────────────────────────────
+
+name: Deploy (Canary)
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: Tag a desplegar si se dispara manualmente (ej. v1.4.0)
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-demo-api
+  cancel-in-progress: false
+
+jobs:
+  usar-receta-compartida:
+    uses: ciclo-de-vida-II/AUY1104-SharedWorkflows/.github/workflows/canary-deploy.yaml@v1.0.0
+    with:
+      app-name: demo-api
+      image-name: demo-api
+      image-tag: ${{ github.event_name == 'workflow_dispatch' && inputs.image-tag || github.ref_name }}
+      k3s-server-public-ip: ${{ vars.K3S_SERVER_PUBLIC_IP }}
+      canary-replicas: 1
+      stable-replicas: 4
+      health-check-path: /health
+      health-check-attempts: 8
+      max-latency-ms: 800
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
+      EA2_SSH_PRIVATE_KEY: ${{ secrets.EA2_SSH_PRIVATE_KEY }}

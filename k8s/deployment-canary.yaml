@@ -1,32 +1,32 @@
 # ─────────────────────────────────────────────────────────────
-# Deployment ESTABLE (track: stable).
-# Se aplica una sola vez de forma manual/bootstrap (ver README).
-# Las promociones posteriores NO reaplican este archivo: el
-# pipeline usa `kubectl set image` + `kubectl scale` para no pisar
-# el estado vivo del clúster con un tag desactualizado.
+# Deployment CANARY (track: canary).
+# El pipeline lo renderiza en cada ejecución (sed) e inyecta:
+#   __APP_NAME__, __IMAGE__, __CANARY_TAG__, __CANARY_REPLICAS__
+# Vive solo durante la validación: si se promueve o se hace
+# rollback, termina en 0 réplicas.
 # ─────────────────────────────────────────────────────────────
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: __APP_NAME__-stable
+  name: __APP_NAME__-canary
   labels:
     app: __APP_NAME__
-    track: stable
+    track: canary
 spec:
-  replicas: __STABLE_REPLICAS__
+  replicas: __CANARY_REPLICAS__
   selector:
     matchLabels:
       app: __APP_NAME__
-      track: stable
+      track: canary
   template:
     metadata:
       labels:
         app: __APP_NAME__
-        track: stable
+        track: canary
     spec:
       containers:
         - name: api
-          image: __IMAGE__:__STABLE_TAG__
+          image: __IMAGE__:__CANARY_TAG__
           imagePullPolicy: Always
           ports:
             - name: http
@@ -36,7 +36,7 @@ spec:
               path: /health
               port: http
             initialDelaySeconds: 5
-            periodSeconds: 10
+            periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /health
